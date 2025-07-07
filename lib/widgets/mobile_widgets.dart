@@ -1,14 +1,11 @@
 // ============================================================================
-// MOBILE COMPONENTS
-// ============================================================================import 'package:flutter/material.dart';
-
-
+// MOBILE COMPONENTS - FIXED VERSION
+// ============================================================================
 
 import 'package:flutter/material.dart';
-
 import '../models/product.dart';
 
-class MobileSearchBar extends StatelessWidget {
+class MobileSearchBar extends StatefulWidget {
   final TextEditingController searchController;
   final VoidCallback onSearchChanged;
   final VoidCallback onFilterPressed;
@@ -21,14 +18,21 @@ class MobileSearchBar extends StatelessWidget {
   });
 
   @override
+  State<MobileSearchBar> createState() => _MobileSearchBarState();
+}
+
+class _MobileSearchBarState extends State<MobileSearchBar> {
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: theme.colorScheme.shadow.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -40,42 +44,53 @@ class MobileSearchBar extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
-                color: Colors.grey.shade50,
+                border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+                color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
               ),
               child: TextField(
-                controller: searchController,
+                controller: widget.searchController,
                 decoration: InputDecoration(
                   labelText: 'Search products...',
                   hintText: 'Code or Name',
-                  prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
-                  suffixIcon: searchController.text.isNotEmpty
+                  hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  suffixIcon: widget.searchController.text.isNotEmpty
                       ? IconButton(
-                    icon: Icon(Icons.clear, color: Colors.grey.shade600),
+                    icon: Icon(
+                      Icons.clear,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                     onPressed: () {
-                      searchController.clear();
-                      onSearchChanged();
+                      widget.searchController.clear();
+                      setState(() {});
+                      widget.onSearchChanged();
                     },
                   )
                       : null,
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
                 ),
-                onChanged: (_) => onSearchChanged(),
+                onChanged: (value) {
+                  setState(() {});
+                  widget.onSearchChanged();
+                },
               ),
             ),
           ),
           const SizedBox(width: 12),
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+              color: theme.colorScheme.primary,
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
-              onPressed: onFilterPressed,
+              onPressed: widget.onFilterPressed,
               icon: Icon(
                 Icons.tune_rounded,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: theme.colorScheme.onPrimary,
               ),
               tooltip: 'Advanced Filters',
             ),
@@ -118,11 +133,13 @@ class MobileFilterDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
@@ -135,7 +152,7 @@ class MobileFilterDialog extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: theme.colorScheme.outline.withOpacity(0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -150,20 +167,24 @@ class MobileFilterDialog extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.filter_list_rounded,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: theme.colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       'Advanced Filters',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                   ],
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Done'),
+                  child: Text(
+                    'Done',
+                    style: TextStyle(color: theme.colorScheme.primary),
+                  ),
                 ),
               ],
             ),
@@ -182,8 +203,8 @@ class MobileFilterDialog extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                        color: Colors.white,
+                        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+                        color: theme.colorScheme.surface,
                       ),
                       child: DropdownButtonFormField<String>(
                         value: selectedCategory,
@@ -191,10 +212,14 @@ class MobileFilterDialog extends StatelessWidget {
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         ),
+                        dropdownColor: theme.colorScheme.surface,
                         items: categories.map((category) {
                           return DropdownMenuItem(
                             value: category,
-                            child: Text(category),
+                            child: Text(
+                              category,
+                              style: TextStyle(color: theme.colorScheme.onSurface),
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) => onCategoryChanged(value ?? 'All'),
@@ -210,30 +235,56 @@ class MobileFilterDialog extends StatelessWidget {
                     icon: Icons.currency_rupee_rounded,
                     child: Column(
                       children: [
-                        RangeSlider(
-                          values: priceMrpRange,
-                          min: minPriceMrp,
-                          max: maxPriceMrp,
-                          divisions: 50,
-                          activeColor: Colors.green.shade600,
-                          labels: RangeLabels(
-                            '₹${priceMrpRange.start.toStringAsFixed(0)}',
-                            '₹${priceMrpRange.end.toStringAsFixed(0)}',
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: theme.colorScheme.primary,
+                            inactiveTrackColor: theme.colorScheme.outline.withOpacity(0.2),
+                            thumbColor: theme.colorScheme.primary,
+                            overlayColor: theme.colorScheme.primary.withOpacity(0.1),
+                            valueIndicatorColor: theme.colorScheme.primary,
+                            valueIndicatorTextStyle: TextStyle(
+                              color: theme.colorScheme.onPrimary,
+                            ),
                           ),
-                          onChanged: onPriceMrpChanged,
+                          child: RangeSlider(
+                            values: priceMrpRange,
+                            min: minPriceMrp,
+                            max: maxPriceMrp,
+                            divisions: 50,
+                            labels: RangeLabels(
+                              '₹${priceMrpRange.start.toStringAsFixed(0)}',
+                              '₹${priceMrpRange.end.toStringAsFixed(0)}',
+                            ),
+                            onChanged: onPriceMrpChanged,
+                          ),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.green.shade50,
+                            color: theme.colorScheme.primaryContainer,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('₹${priceMrpRange.start.toStringAsFixed(0)}'),
-                              const Text('to'),
-                              Text('₹${priceMrpRange.end.toStringAsFixed(0)}'),
+                              Text(
+                                '₹${priceMrpRange.start.toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                ),
+                              ),
+                              Text(
+                                'to',
+                                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                              ),
+                              Text(
+                                '₹${priceMrpRange.end.toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -249,30 +300,56 @@ class MobileFilterDialog extends StatelessWidget {
                     icon: Icons.shopping_cart_rounded,
                     child: Column(
                       children: [
-                        RangeSlider(
-                          values: onlineSpRange,
-                          min: minOnlineSp,
-                          max: maxOnlineSp,
-                          divisions: 50,
-                          activeColor: Colors.orange.shade600,
-                          labels: RangeLabels(
-                            '₹${onlineSpRange.start.toStringAsFixed(0)}',
-                            '₹${onlineSpRange.end.toStringAsFixed(0)}',
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: theme.colorScheme.secondary,
+                            inactiveTrackColor: theme.colorScheme.outline.withOpacity(0.2),
+                            thumbColor: theme.colorScheme.secondary,
+                            overlayColor: theme.colorScheme.secondary.withOpacity(0.1),
+                            valueIndicatorColor: theme.colorScheme.secondary,
+                            valueIndicatorTextStyle: TextStyle(
+                              color: theme.colorScheme.onSecondary,
+                            ),
                           ),
-                          onChanged: onOnlineSpChanged,
+                          child: RangeSlider(
+                            values: onlineSpRange,
+                            min: minOnlineSp,
+                            max: maxOnlineSp,
+                            divisions: 50,
+                            labels: RangeLabels(
+                              '₹${onlineSpRange.start.toStringAsFixed(0)}',
+                              '₹${onlineSpRange.end.toStringAsFixed(0)}',
+                            ),
+                            onChanged: onOnlineSpChanged,
+                          ),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.orange.shade50,
+                            color: theme.colorScheme.secondaryContainer,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('₹${onlineSpRange.start.toStringAsFixed(0)}'),
-                              const Text('to'),
-                              Text('₹${onlineSpRange.end.toStringAsFixed(0)}'),
+                              Text(
+                                '₹${onlineSpRange.start.toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.onSecondaryContainer,
+                                ),
+                              ),
+                              Text(
+                                'to',
+                                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                              ),
+                              Text(
+                                '₹${onlineSpRange.end.toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.onSecondaryContainer,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -326,18 +403,20 @@ class MobileFilterSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: Colors.grey.shade700),
+            Icon(icon, size: 20, color: theme.colorScheme.onSurface),
             const SizedBox(width: 8),
             Text(
               title,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
+                color: theme.colorScheme.onSurface,
                 fontSize: 16,
               ),
             ),
@@ -351,7 +430,7 @@ class MobileFilterSection extends StatelessWidget {
 }
 
 // ============================================================================
-// PRODUCT DISPLAY COMPONENTS
+// PRODUCT DISPLAY COMPONENTS - FIXED VERSION
 // ============================================================================
 
 class ProductGrid extends StatelessWidget {
@@ -398,6 +477,8 @@ class EmptyProductsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -405,28 +486,28 @@ class EmptyProductsState extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.search_off_rounded,
               size: 64,
-              color: Colors.grey.shade400,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 24),
           Text(
             'No Products Found',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: Colors.grey.shade600,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Try adjusting your search criteria or filters',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey.shade500,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -447,6 +528,8 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 300 + (index * 50)),
       tween: Tween(begin: 0.0, end: 1.0),
@@ -457,7 +540,7 @@ class ProductCard extends StatelessWidget {
             opacity: value,
             child: Card(
               elevation: 6,
-              shadowColor: Colors.black.withOpacity(0.1),
+              shadowColor: theme.colorScheme.shadow.withOpacity(0.1),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -468,8 +551,8 @@ class ProductCard extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white,
-                      Colors.grey.shade50,
+                      theme.colorScheme.surface,
+                      theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
                     ],
                   ),
                 ),
@@ -485,14 +568,12 @@ class ProductCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          ProductTitle(name: product.name),
+                          Expanded(child: ProductTitle(name: product.name)),
                           CategoryBadge(category: product.category),
                         ],
                       ),
                       const SizedBox(height: 12),
                       ProductDesc(shortDesc: product.shortDescription),
-
-
                       const Spacer(),
                       ProductPricing(product: product),
                     ],
@@ -514,13 +595,15 @@ class ProductCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            color: theme.colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -528,7 +611,7 @@ class ProductCardHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
+              color: theme.colorScheme.primary,
             ),
           ),
         ),
@@ -536,7 +619,7 @@ class ProductCardHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.red.shade100,
+              color: theme.colorScheme.errorContainer,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -544,7 +627,7 @@ class ProductCardHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
-                color: Colors.red.shade700,
+                color: theme.colorScheme.onErrorContainer,
               ),
             ),
           ),
@@ -558,17 +641,19 @@ class ProductIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       width: double.infinity,
       height: 80,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(
         Icons.cable_rounded,
         size: 40,
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+        color: theme.colorScheme.primary.withOpacity(0.7),
       ),
     );
   }
@@ -581,12 +666,15 @@ class ProductTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Text(
       name,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.bold,
         height: 1.2,
+        color: theme.colorScheme.onSurface,
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
@@ -601,18 +689,22 @@ class ProductDesc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Text(
       shortDesc,
-      style: const TextStyle(
-        fontSize: 14,
+      style: TextStyle(
+        fontSize: 12,
         fontWeight: FontWeight.w400,
         height: 1.2,
+        color: theme.colorScheme.onSurfaceVariant,
       ),
-      maxLines: 5,
+      maxLines: 3,
       overflow: TextOverflow.ellipsis,
     );
   }
 }
+
 class CategoryBadge extends StatelessWidget {
   final String category;
 
@@ -620,17 +712,19 @@ class CategoryBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: theme.colorScheme.tertiaryContainer,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         category,
         style: TextStyle(
           fontSize: 11,
-          color: Colors.blue.shade700,
+          color: theme.colorScheme.onTertiaryContainer,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -645,13 +739,17 @@ class ProductPricing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.green.shade50,
+        color: theme.colorScheme.primaryContainer.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(
+          color: theme.colorScheme.primary.withOpacity(0.2),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -666,7 +764,7 @@ class ProductPricing extends StatelessWidget {
                     'Price MRP',
                     style: TextStyle(
                       fontSize: 10,
-                      color: Colors.grey.shade600,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                   Text(
@@ -674,7 +772,7 @@ class ProductPricing extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green.shade700,
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                 ],
@@ -686,7 +784,7 @@ class ProductPricing extends StatelessWidget {
                     'Online',
                     style: TextStyle(
                       fontSize: 10,
-                      color: Colors.grey.shade600,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                   Text(
@@ -694,7 +792,7 @@ class ProductPricing extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Colors.orange.shade700,
+                      color: theme.colorScheme.secondary,
                     ),
                   ),
                 ],
@@ -706,4 +804,3 @@ class ProductPricing extends StatelessWidget {
     );
   }
 }
-

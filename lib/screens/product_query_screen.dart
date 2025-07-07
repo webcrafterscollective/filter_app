@@ -1,9 +1,6 @@
 // ============================================================================
-// MAIN SCREEN
-// ============================================================================import 'package:flutter/material.dart';
-
-
-
+// MAIN SCREEN - FIXED VERSION
+// ============================================================================
 
 import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
@@ -31,12 +28,12 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
 
   final TextEditingController _searchController = TextEditingController();
   String _selectedCategory = 'All';
-  RangeValues _priceMrpRange = const RangeValues(0, 10000);
-  RangeValues _onlineSpRange = const RangeValues(0, 10000);
-  double _minPriceMrp = 0;
-  double _maxPriceMrp = 10000;
-  double _minOnlineSp = 0;
-  double _maxOnlineSp = 10000;
+  RangeValues _priceMrpRange = const RangeValues(0, 50000);
+  RangeValues _onlineSpRange = const RangeValues(0, 50000);
+  final double _minPriceMrp = 0;
+  final double _maxPriceMrp = 50000;
+  final double _minOnlineSp = 0;
+  final double _maxOnlineSp = 50000;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -46,6 +43,9 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
     super.initState();
     _initializeAnimations();
     _loadExcelData();
+
+    // Add listener to search controller for real-time filtering
+    _searchController.addListener(_applyFilters);
   }
 
   void _initializeAnimations() {
@@ -98,8 +98,9 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
         _updateState(products, categories);
 
         print('Successfully loaded ${products.length} products');
-
-        print('### first product: ${products[0].name}');
+        if (products.isNotEmpty) {
+          print('First product: ${products[0].name}');
+        }
         _animationController.forward();
       }
     } catch (e) {
@@ -113,33 +114,20 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
         rowValues[0].toString().trim().isNotEmpty;
   }
 
-  static double _parseDouble(dynamic value) {
-    if (value == null) return 0.0;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is String) {
-      final cleanValue = value.replaceAll(RegExp(r'[^\d.]'), '');
-      return double.tryParse(cleanValue) ?? 0.0;
-    }
-    return 0.0;
-  }
-
-
   Product _parseProduct(List<dynamic> rowValues) {
-    String code = rowValues[0]?.toString() ?? '';
-    String name = rowValues.length > 1 ? (rowValues[1]?.toString() ?? '') : '';
-    String shortDesc = rowValues.length > 2 ? (rowValues[2]?.toString() ?? '') : '';
-
-    String category = rowValues.length > 3 ? (rowValues[3]?.toString() ?? '') : 'UGREEN';
+    String code = rowValues[0]?.toString().trim() ?? '';
+    String name = rowValues.length > 1 ? (rowValues[1]?.toString().trim() ?? '') : '';
+    String shortDesc = rowValues.length > 2 ? (rowValues[2]?.toString().trim() ?? '') : '';
+    String category = rowValues.length > 3 ? (rowValues[3]?.toString().trim() ?? '') : 'UGREEN';
 
     // For prices, look for numeric values in columns 4 and 5
     double priceMrp = 0.0;
     double onlineSp = 0.0;
-    if (rowValues.length > 4) {
 
+    if (rowValues.length > 5) {
       priceMrp = double.parse(rowValues[5]?.toString() ?? '0.0');
     }
-    if (rowValues.length > 5) {
+    if (rowValues.length > 6) {
       onlineSp = double.parse(rowValues[6]?.toString() ?? '0.0');
     }
 
@@ -153,23 +141,34 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
     );
   }
 
-  void _calculatePriceRanges(List<Product> products) {
-    if (products.isNotEmpty) {
-      final priceMrps = products.map((p) => p.priceMrp).where((p) => p > 0);
-      final onlinePrices = products.map((p) => p.onlineSp).where((p) => p > 0);
-
-      if (priceMrps.isNotEmpty) {
-        _minPriceMrp = priceMrps.reduce((a, b) => a < b ? a : b);
-        _maxPriceMrp = priceMrps.reduce((a, b) => a > b ? a : b);
-        _priceMrpRange = RangeValues(_minPriceMrp, _maxPriceMrp);
-      }
-
-      if (onlinePrices.isNotEmpty) {
-        _minOnlineSp = onlinePrices.reduce((a, b) => a < b ? a : b);
-        _maxOnlineSp = onlinePrices.reduce((a, b) => a > b ? a : b);
-        _onlineSpRange = RangeValues(_minOnlineSp, _maxOnlineSp);
-      }
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      final cleanValue = value.replaceAll(RegExp(r'[^\d.]'), '');
+      return double.tryParse(cleanValue) ?? 0.0;
     }
+    return 0.0;
+  }
+
+  void _calculatePriceRanges(List<Product> products) {
+    // if (products.isNotEmpty) {
+    //   final priceMrps = products.map((p) => p.priceMrp).where((p) => p > 0);
+    //   final onlinePrices = products.map((p) => p.onlineSp).where((p) => p > 0);
+    //
+    //   if (priceMrps.isNotEmpty) {
+    //     _minPriceMrp = priceMrps.reduce((a, b) => a < b ? a : b);
+    //     _maxPriceMrp = priceMrps.reduce((a, b) => a > b ? a : b);
+    //     _priceMrpRange = RangeValues(_minPriceMrp, _maxPriceMrp);
+    //   }
+    //
+    //   if (onlinePrices.isNotEmpty) {
+    //     _minOnlineSp = onlinePrices.reduce((a, b) => a < b ? a : b);
+    //     _maxOnlineSp = onlinePrices.reduce((a, b) => a > b ? a : b);
+    //     _onlineSpRange = RangeValues(_minOnlineSp, _maxOnlineSp);
+    //   }
+    // }
   }
 
   void _updateState(List<Product> products, Set<String> categories) {
@@ -207,22 +206,27 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
   }
 
   bool _matchesSearch(Product product) {
-    final searchTerm = _searchController.text.toLowerCase();
-    return searchTerm.isEmpty ||
-        product.name.toLowerCase().contains(searchTerm) ||
-        product.code.toLowerCase().contains(searchTerm);
+    final searchTerm = _searchController.text.toLowerCase().trim();
+    if (searchTerm.isEmpty) return true;
+
+    return product.name.toLowerCase().contains(searchTerm) ||
+        product.code.toLowerCase().contains(searchTerm) ||
+        product.shortDescription.toLowerCase().contains(searchTerm);
   }
 
   bool _matchesCategory(Product product) {
-    return _selectedCategory == 'All' || product.category == _selectedCategory;
+    return _selectedCategory == 'All' ||
+        product.category.toLowerCase() == _selectedCategory.toLowerCase();
   }
 
   bool _matchesPriceMrp(Product product) {
+    if (product.priceMrp <= 0) return true; // Include products with no MRP price
     return product.priceMrp >= _priceMrpRange.start &&
         product.priceMrp <= _priceMrpRange.end;
   }
 
   bool _matchesOnlineSp(Product product) {
+    if (product.onlineSp <= 0) return true; // Include products with no online price
     return product.onlineSp >= _onlineSpRange.start &&
         product.onlineSp <= _onlineSpRange.end;
   }
@@ -243,7 +247,7 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
     final isWideScreen = screenWidth > 900;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: CustomAppBar(filteredProductsCount: _filteredProducts.length),
       body: _isLoading
           ? const LoadingScreen()
@@ -269,7 +273,7 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
             minOnlineSp: _minOnlineSp,
             maxOnlineSp: _maxOnlineSp,
             filteredProductsCount: _filteredProducts.length,
-            onSearchChanged: _applyFilters,
+            onSearchChanged: () {}, // Handled by controller listener
             onCategoryChanged: (value) {
               setState(() => _selectedCategory = value);
               _applyFilters();
@@ -285,7 +289,10 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
             onClearFilters: _clearAllFilters,
           ),
         ),
-        const VerticalDivider(width: 1),
+        VerticalDivider(
+          width: 1,
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+        ),
         Expanded(
           child: ProductGrid(
             products: _filteredProducts,
@@ -301,7 +308,7 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
       children: [
         MobileSearchBar(
           searchController: _searchController,
-          onSearchChanged: _applyFilters,
+          onSearchChanged: () {}, // Handled by controller listener
           onFilterPressed: () => _showMobileFilterDialog(),
         ),
         Expanded(
@@ -347,6 +354,7 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
 
   @override
   void dispose() {
+    _searchController.removeListener(_applyFilters);
     _searchController.dispose();
     _animationController.dispose();
     super.dispose();

@@ -38,12 +38,14 @@ class FilterPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: theme.colorScheme.shadow.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -73,7 +75,7 @@ class FilterPanel extends StatelessWidget {
               range: priceMrpRange,
               min: minPriceMrp,
               max: maxPriceMrp,
-              color: Colors.green,
+              colorType: PriceRangeColorType.primary,
               onChanged: onPriceMrpChanged,
             ),
             const SizedBox(height: 24),
@@ -83,7 +85,7 @@ class FilterPanel extends StatelessWidget {
               range: onlineSpRange,
               min: minOnlineSp,
               max: maxOnlineSp,
-              color: Colors.orange,
+              colorType: PriceRangeColorType.secondary,
               onChanged: onOnlineSpChanged,
             ),
             const SizedBox(height: 32),
@@ -102,19 +104,21 @@ class FilterHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Row(
       children: [
         Icon(
           Icons.filter_list_rounded,
-          color: Theme.of(context).colorScheme.primary,
+          color: theme.colorScheme.primary,
           size: 24,
         ),
         const SizedBox(width: 8),
         Text(
           'Filters',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+          style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
+            color: theme.colorScheme.primary,
           ),
         ),
       ],
@@ -122,7 +126,7 @@ class FilterHeader extends StatelessWidget {
   }
 }
 
-class SearchField extends StatelessWidget {
+class SearchField extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onChanged;
 
@@ -133,32 +137,49 @@ class SearchField extends StatelessWidget {
   });
 
   @override
+  State<SearchField> createState() => _SearchFieldState();
+}
+
+class _SearchFieldState extends State<SearchField> {
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-        color: Colors.grey.shade50,
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
       ),
       child: TextField(
-        controller: controller,
+        controller: widget.controller,
         decoration: InputDecoration(
           labelText: 'Search by Code or Name',
-          hintText: 'e.g., SUG001 or USB Cable',
-          prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
-          suffixIcon: controller.text.isNotEmpty
+          hintText: 'e.g., SUG001 or 10314',
+          hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+          prefixIcon: Icon(
+            Icons.search,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          suffixIcon: widget.controller.text.isNotEmpty
               ? IconButton(
-            icon: Icon(Icons.clear, color: Colors.grey.shade600),
+            icon: Icon(
+              Icons.clear,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             onPressed: () {
-              controller.clear();
-              onChanged();
+              widget.controller.clear();
+              setState(() {});
             },
           )
               : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
         ),
-        onChanged: (_) => onChanged(),
+        onChanged: (value) {
+          setState(() {});
+          widget.onChanged();
+        },
       ),
     );
   }
@@ -178,14 +199,16 @@ class CategoryFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return FilterSection(
       title: 'Category',
       icon: Icons.category_rounded,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
-          color: Colors.white,
+          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+          color: theme.colorScheme.surface,
         ),
         child: DropdownButtonFormField<String>(
           value: selectedCategory,
@@ -193,10 +216,14 @@ class CategoryFilter extends StatelessWidget {
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
+          dropdownColor: theme.colorScheme.surface,
           items: categories.map((category) {
             return DropdownMenuItem(
               value: category,
-              child: Text(category),
+              child: Text(
+                category,
+                style: TextStyle(color: theme.colorScheme.onSurface),
+              ),
             );
           }).toList(),
           onChanged: (value) => onChanged(value ?? 'All'),
@@ -206,13 +233,15 @@ class CategoryFilter extends StatelessWidget {
   }
 }
 
+enum PriceRangeColorType { primary, secondary }
+
 class PriceRangeFilter extends StatelessWidget {
   final String title;
   final IconData icon;
   final RangeValues range;
   final double min;
   final double max;
-  final Color color;
+  final PriceRangeColorType colorType;
   final ValueChanged<RangeValues> onChanged;
 
   const PriceRangeFilter({
@@ -222,33 +251,64 @@ class PriceRangeFilter extends StatelessWidget {
     required this.range,
     required this.min,
     required this.max,
-    required this.color,
+    required this.colorType,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // Get colors based on type and theme
+    final Color activeColor;
+    final Color containerColor;
+    final Color textColor;
+
+    switch (colorType) {
+      case PriceRangeColorType.primary:
+        activeColor = theme.colorScheme.primary;
+        containerColor = theme.colorScheme.primaryContainer;
+        textColor = theme.colorScheme.onPrimaryContainer;
+        break;
+      case PriceRangeColorType.secondary:
+        activeColor = theme.colorScheme.secondary;
+        containerColor = theme.colorScheme.secondaryContainer;
+        textColor = theme.colorScheme.onSecondaryContainer;
+        break;
+    }
+
     return FilterSection(
       title: title,
       icon: icon,
       child: Column(
         children: [
-          RangeSlider(
-            values: range,
-            min: min,
-            max: max,
-            divisions: 50,
-            activeColor: Colors.green, //color.shade600,
-            labels: RangeLabels(
-              '₹${range.start.toStringAsFixed(0)}',
-              '₹${range.end.toStringAsFixed(0)}',
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: activeColor,
+              inactiveTrackColor: theme.colorScheme.outline.withOpacity(0.2),
+              thumbColor: activeColor,
+              overlayColor: activeColor.withOpacity(0.1),
+              valueIndicatorColor: activeColor,
+              valueIndicatorTextStyle: TextStyle(
+                color: theme.colorScheme.onPrimary,
+              ),
             ),
-            onChanged: onChanged,
+            child: RangeSlider(
+              values: range,
+              min: min,
+              max: max,
+              divisions: 50,
+              labels: RangeLabels(
+                '₹${range.start.toStringAsFixed(0)}',
+                '₹${range.end.toStringAsFixed(0)}',
+              ),
+              onChanged: onChanged,
+            ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.green, //color.shade50,
+              color: containerColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -256,20 +316,20 @@ class PriceRangeFilter extends StatelessWidget {
               children: [
                 Text(
                   '₹${range.start.toStringAsFixed(0)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: Colors.green, //color.shade700,
+                    color: textColor,
                   ),
                 ),
                 Text(
                   'to',
-                  style: TextStyle(color: Colors.grey.shade600),
+                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 Text(
                   '₹${range.end.toStringAsFixed(0)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: Colors.green,// color.shade700,
+                    color: textColor,
                   ),
                 ),
               ],
@@ -295,18 +355,24 @@ class FilterSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: Colors.grey.shade700),
+            Icon(
+              icon,
+              size: 20,
+              color: theme.colorScheme.onSurface,
+            ),
             const SizedBox(width: 8),
             Text(
               title,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
+                color: theme.colorScheme.onSurface,
                 fontSize: 16,
               ),
             ),
@@ -326,14 +392,16 @@ class ResultsSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).colorScheme.primaryContainer,
-            Theme.of(context).colorScheme.primaryContainer.withOpacity(0.7),
+            theme.colorScheme.primaryContainer,
+            theme.colorScheme.primaryContainer.withOpacity(0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -344,21 +412,21 @@ class ResultsSummary extends StatelessWidget {
         children: [
           Icon(
             Icons.analytics_rounded,
-            color: Theme.of(context).colorScheme.primary,
+            color: theme.colorScheme.primary,
             size: 32,
           ),
           const SizedBox(height: 8),
           Text(
             '$count',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
+              color: theme.colorScheme.primary,
             ),
           ),
           Text(
             'Products Found',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.w500,
             ),
           ),

@@ -11,8 +11,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      toolbarHeight: 80,
       title: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
@@ -27,7 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           const SizedBox(width: 12),
-          const Text('Product Query', style: TextStyle(fontWeight: FontWeight.w600)),
+          const Text('PQDASH', style: TextStyle(fontWeight: FontWeight.w600)),
         ],
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,

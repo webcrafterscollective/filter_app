@@ -6,6 +6,7 @@ import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../data/product_data.dart';
 import '../models/product.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/error_dialog.dart';
@@ -67,6 +68,11 @@ class _ProductQueryScreenState extends State<ProductQueryScreen> with TickerProv
 
       final excel = Excel.decodeBytes(bytes);
       final sheet = excel.tables[excel.tables.keys.first];
+
+      // final bytes = productBytes; // <-- USE THE IMPORTED BYTE ARRAY
+      //
+      // final excel = Excel.decodeBytes(bytes);
+      // final sheet = excel.tables[excel.tables.keys.first];
 
       if (sheet != null) {
         final products = <Product>[];

@@ -101,7 +101,7 @@ class _MobileSearchBarState extends State<MobileSearchBar> {
   }
 }
 
-class MobileFilterDialog extends StatelessWidget {
+class MobileFilterDialog extends StatefulWidget {
   final List<String> categories;
   final String selectedCategory;
   final RangeValues priceMrpRange;
@@ -130,6 +130,23 @@ class MobileFilterDialog extends StatelessWidget {
     required this.onOnlineSpChanged,
     required this.onClearFilters,
   });
+
+  @override
+  State<MobileFilterDialog> createState() => _MobileFilterDialogState();
+}
+
+class _MobileFilterDialogState extends State<MobileFilterDialog> {
+  late String _selectedCategory;
+  late RangeValues _priceMrpRange;
+  late RangeValues _onlineSpRange;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.selectedCategory;
+    _priceMrpRange = widget.priceMrpRange;
+    _onlineSpRange = widget.onlineSpRange;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -207,13 +224,13 @@ class MobileFilterDialog extends StatelessWidget {
                         color: theme.colorScheme.surface,
                       ),
                       child: DropdownButtonFormField<String>(
-                        value: selectedCategory,
+                        value: _selectedCategory,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         ),
                         dropdownColor: theme.colorScheme.surface,
-                        items: categories.map((category) {
+                        items: widget.categories.map((category) {
                           return DropdownMenuItem(
                             value: category,
                             child: Text(
@@ -222,7 +239,14 @@ class MobileFilterDialog extends StatelessWidget {
                             ),
                           );
                         }).toList(),
-                        onChanged: (value) => onCategoryChanged(value ?? 'All'),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              _selectedCategory = value;
+                            });
+                            widget.onCategoryChanged(value);
+                          }
+                        },
                       ),
                     ),
                   ),
@@ -247,15 +271,20 @@ class MobileFilterDialog extends StatelessWidget {
                             ),
                           ),
                           child: RangeSlider(
-                            values: priceMrpRange,
-                            min: minPriceMrp,
-                            max: maxPriceMrp,
+                            values: _priceMrpRange,
+                            min: widget.minPriceMrp,
+                            max: widget.maxPriceMrp,
                             divisions: 50,
                             labels: RangeLabels(
-                              '₹${priceMrpRange.start.toStringAsFixed(0)}',
-                              '₹${priceMrpRange.end.toStringAsFixed(0)}',
+                              '₹${_priceMrpRange.start.toStringAsFixed(0)}',
+                              '₹${_priceMrpRange.end.toStringAsFixed(0)}',
                             ),
-                            onChanged: onPriceMrpChanged,
+                            onChanged: (values) {
+                              setState(() {
+                                _priceMrpRange = values;
+                              });
+                              widget.onPriceMrpChanged(values);
+                            },
                           ),
                         ),
                         Container(
@@ -268,7 +297,7 @@ class MobileFilterDialog extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '₹${priceMrpRange.start.toStringAsFixed(0)}',
+                                '₹${_priceMrpRange.start.toStringAsFixed(0)}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: theme.colorScheme.onPrimaryContainer,
@@ -279,7 +308,7 @@ class MobileFilterDialog extends StatelessWidget {
                                 style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                               ),
                               Text(
-                                '₹${priceMrpRange.end.toStringAsFixed(0)}',
+                                '₹${_priceMrpRange.end.toStringAsFixed(0)}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: theme.colorScheme.onPrimaryContainer,
@@ -312,15 +341,20 @@ class MobileFilterDialog extends StatelessWidget {
                             ),
                           ),
                           child: RangeSlider(
-                            values: onlineSpRange,
-                            min: minOnlineSp,
-                            max: maxOnlineSp,
+                            values: _onlineSpRange,
+                            min: widget.minOnlineSp,
+                            max: widget.maxOnlineSp,
                             divisions: 50,
                             labels: RangeLabels(
-                              '₹${onlineSpRange.start.toStringAsFixed(0)}',
-                              '₹${onlineSpRange.end.toStringAsFixed(0)}',
+                              '₹${_onlineSpRange.start.toStringAsFixed(0)}',
+                              '₹${_onlineSpRange.end.toStringAsFixed(0)}',
                             ),
-                            onChanged: onOnlineSpChanged,
+                            onChanged: (values) {
+                              setState(() {
+                                _onlineSpRange = values;
+                              });
+                              widget.onOnlineSpChanged(values);
+                            },
                           ),
                         ),
                         Container(
@@ -333,7 +367,7 @@ class MobileFilterDialog extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '₹${onlineSpRange.start.toStringAsFixed(0)}',
+                                '₹${_onlineSpRange.start.toStringAsFixed(0)}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: theme.colorScheme.onSecondaryContainer,
@@ -344,7 +378,7 @@ class MobileFilterDialog extends StatelessWidget {
                                 style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                               ),
                               Text(
-                                '₹${onlineSpRange.end.toStringAsFixed(0)}',
+                                '₹${_onlineSpRange.end.toStringAsFixed(0)}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: theme.colorScheme.onSecondaryContainer,
@@ -364,7 +398,7 @@ class MobileFilterDialog extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        onClearFilters();
+                        widget.onClearFilters();
                         Navigator.pop(context);
                       },
                       icon: const Icon(Icons.clear_all_rounded),
@@ -433,6 +467,46 @@ class MobileFilterSection extends StatelessWidget {
 // PRODUCT DISPLAY COMPONENTS - FIXED VERSION
 // ============================================================================
 
+// class ProductGrid extends StatelessWidget {
+//   final List<Product> products;
+//   final Animation<double> fadeAnimation;
+//
+//   const ProductGrid({
+//     super.key,
+//     required this.products,
+//     required this.fadeAnimation,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     if (products.isEmpty) {
+//       return const EmptyProductsState();
+//     }
+//
+//     final screenWidth = MediaQuery.of(context).size.width;
+//     final crossAxisCount = screenWidth > 1400 ? 4 : screenWidth > 1000 ? 3 : screenWidth > 600 ? 2 : 1;
+//
+//     return FadeTransition(
+//       opacity: fadeAnimation,
+//       child: GridView.builder(
+//         padding: const EdgeInsets.all(20),
+//         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//           crossAxisCount: crossAxisCount,
+//           crossAxisSpacing: 20,
+//           mainAxisSpacing: 20,
+//           childAspectRatio: 0.85,
+//         ),
+//         itemCount: products.length,
+//         itemBuilder: (context, index) {
+//           final product = products[index];
+//           return ProductCard(product: product, index: index);
+//         },
+//       ),
+//     );
+//   }
+// }
+// In lib/widgets/mobile_widgets.dart
+
 class ProductGrid extends StatelessWidget {
   final List<Product> products;
   final Animation<double> fadeAnimation;
@@ -450,8 +524,33 @@ class ProductGrid extends StatelessWidget {
     }
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final crossAxisCount = screenWidth > 1400 ? 4 : screenWidth > 1000 ? 3 : screenWidth > 600 ? 2 : 1;
+    final crossAxisCount = screenWidth > 1400
+        ? 4
+        : screenWidth > 1000
+        ? 3
+        : screenWidth > 600
+        ? 2
+        : 1;
 
+    // For mobile view, use a ListView for better appearance
+    if (crossAxisCount == 1) {
+      return FadeTransition(
+        opacity: fadeAnimation,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            final product = products[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: MobileProductCard(product: product, index: index),
+            );
+          },
+        ),
+      );
+    }
+
+    // For desktop view, keep the GridView
     return FadeTransition(
       opacity: fadeAnimation,
       child: GridView.builder(
@@ -471,6 +570,7 @@ class ProductGrid extends StatelessWidget {
     );
   }
 }
+
 
 class EmptyProductsState extends StatelessWidget {
   const EmptyProductsState({super.key});
@@ -801,6 +901,85 @@ class ProductPricing extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// In lib/widgets/mobile_widgets.dart
+
+class MobileProductCard extends StatelessWidget {
+  final Product product;
+  final int index;
+
+  const MobileProductCard({
+    super.key,
+    required this.product,
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return TweenAnimationBuilder<double>(
+      duration: Duration(milliseconds: 300 + (index * 50)),
+      tween: Tween(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, 50 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: Card(
+              elevation: 4,
+              clipBehavior: Clip.antiAlias, // Ensures the container respects the card's border radius
+              shadowColor: theme.colorScheme.shadow.withOpacity(0.05),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: IntrinsicHeight( // Ensures all children of the Row have the same height
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches children to fill the height
+                  children: [
+                    // Icon on the left
+                    Container(
+                      width: 90, // A bit wider to look better
+                      color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                      child: Icon(
+                        Icons.cable_rounded,
+                        size: 32,
+                        color: theme.colorScheme.primary.withOpacity(0.7),
+                      ),
+                    ),
+                    // Details on the right
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ProductCardHeader(product: product),
+                            const SizedBox(height: 18),
+                            // Category Badge is now included
+                            ProductTitle(name: product.name),
+                            const SizedBox(height: 8),
+
+                            const SizedBox(height: 4),
+                            ProductDesc(shortDesc: product.shortDescription),
+                            // const Spacer(), // Pushes pricing to the bottom
+                            const SizedBox(height: 18),
+                            ProductPricing(product: product),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

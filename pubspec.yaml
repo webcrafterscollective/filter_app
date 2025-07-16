@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   excel: ^4.0.6
   spreadsheet_decoder: ^2.3.0
+  bitsdojo_window: ^0.1.6
 
 dev_dependencies:
   flutter_test:

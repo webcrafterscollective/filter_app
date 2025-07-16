@@ -9,6 +9,7 @@ class Product {
   final String category;
   final double priceMrp;
   final double onlineSp;
+  final double? gstSp;
 
   Product({
     required this.code,
@@ -17,6 +18,7 @@ class Product {
     required this.category,
     required this.priceMrp,
     required this.onlineSp,
+    this.gstSp,
   });
 
   factory Product.fromRow(List<dynamic> row) {
@@ -32,6 +34,7 @@ class Product {
       category: _parseString(row[3]),       // CATEGORY
       priceMrp: _parseDouble(row[4]),       // PRICE MRP (single column)
       onlineSp: _parseDouble(row[5]),       // ONLINE SP
+      gstSp: _parseDouble(row[6])
     );
   }
 

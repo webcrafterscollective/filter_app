@@ -28,7 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           const SizedBox(width: 12),
-          const Text('PQDASH', style: TextStyle(fontWeight: FontWeight.w600)),
+          const Text('ShreeNect_Prices', style: TextStyle(fontWeight: FontWeight.w600)),
         ],
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,

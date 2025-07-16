@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 class ErrorDialog extends StatelessWidget {
   final String error;
+  final bool isJsonError;
 
-  const ErrorDialog({super.key, required this.error});
+  const ErrorDialog({
+    super.key,
+    required this.error,
+    this.isJsonError = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +17,7 @@ class ErrorDialog extends StatelessWidget {
         children: [
           Icon(Icons.error_outline, color: Colors.red.shade600),
           const SizedBox(width: 8),
-          const Text('Error Loading Excel File'),
+          Text(isJsonError ? 'Error Loading JSON File' : 'Error Loading Excel File'),
         ],
       ),
       content: Column(
@@ -27,20 +32,26 @@ class ErrorDialog extends StatelessWidget {
               color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Troubleshooting:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  '• Ensure Excel file is named "products.xlsx"\n'
+                  isJsonError
+                      ? '• Ensure JSON file is properly formatted\n'
+                      '• Place JSON file in assets/ folder\n'
+                      '• Check pubspec.yaml includes assets\n'
+                      '• Run "flutter pub get"\n'
+                      '• Verify JSON structure matches expected format'
+                      : '• Ensure Excel file is named "products.xlsx"\n'
                       '• Place file in assets/ folder\n'
                       '• Check pubspec.yaml includes assets\n'
                       '• Run "flutter pub get"',
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
               ],
             ),

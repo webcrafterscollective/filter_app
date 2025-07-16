@@ -77,6 +77,10 @@ flutter:
   assets:
     - assets/
     - assets/products.xlsx
+    - assets/trial.honey.json
+    - assets/trial.audio.json
+    - assets/trial.airpurifier.json
+    - assets/trial.belkin.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

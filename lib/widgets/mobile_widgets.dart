@@ -1,5 +1,5 @@
 // ============================================================================
-// MOBILE COMPONENTS - FIXED VERSION
+// MOBILE COMPONENTS - Complete with overflow fixes and GST pricing
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -218,35 +218,41 @@ class _MobileFilterDialogState extends State<MobileFilterDialog> {
                     title: 'Category',
                     icon: Icons.category_rounded,
                     child: Container(
+                      width: double.infinity,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
                         color: theme.colorScheme.surface,
                       ),
-                      child: DropdownButtonFormField<String>(
-                        value: _selectedCategory,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedCategory,
+                          isExpanded: true,
+                          dropdownColor: theme.colorScheme.surface,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          items: widget.categories.map((category) {
+                            return DropdownMenuItem(
+                              value: category,
+                              child: Container(
+                                constraints: const BoxConstraints(maxWidth: 250),
+                                child: Text(
+                                  category,
+                                  style: TextStyle(color: theme.colorScheme.onSurface),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                _selectedCategory = value;
+                              });
+                              widget.onCategoryChanged(value);
+                            }
+                          },
                         ),
-                        dropdownColor: theme.colorScheme.surface,
-                        items: widget.categories.map((category) {
-                          return DropdownMenuItem(
-                            value: category,
-                            child: Text(
-                              category,
-                              style: TextStyle(color: theme.colorScheme.onSurface),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _selectedCategory = value;
-                            });
-                            widget.onCategoryChanged(value);
-                          }
-                        },
                       ),
                     ),
                   ),
@@ -294,24 +300,33 @@ class _MobileFilterDialogState extends State<MobileFilterDialog> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                '₹${_priceMrpRange.start.toStringAsFixed(0)}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: theme.colorScheme.onPrimaryContainer,
+                              Expanded(
+                                child: Text(
+                                  '₹${_priceMrpRange.start.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.onPrimaryContainer,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Text(
-                                'to',
-                                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(
+                                  'to',
+                                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                                ),
                               ),
-                              Text(
-                                '₹${_priceMrpRange.end.toStringAsFixed(0)}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: theme.colorScheme.onPrimaryContainer,
+                              Expanded(
+                                child: Text(
+                                  '₹${_priceMrpRange.end.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.onPrimaryContainer,
+                                  ),
+                                  textAlign: TextAlign.end,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -364,24 +379,33 @@ class _MobileFilterDialogState extends State<MobileFilterDialog> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                '₹${_onlineSpRange.start.toStringAsFixed(0)}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: theme.colorScheme.onSecondaryContainer,
+                              Expanded(
+                                child: Text(
+                                  '₹${_onlineSpRange.start.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.onSecondaryContainer,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Text(
-                                'to',
-                                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(
+                                  'to',
+                                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                                ),
                               ),
-                              Text(
-                                '₹${_onlineSpRange.end.toStringAsFixed(0)}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: theme.colorScheme.onSecondaryContainer,
+                              Expanded(
+                                child: Text(
+                                  '₹${_onlineSpRange.end.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.onSecondaryContainer,
+                                  ),
+                                  textAlign: TextAlign.end,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -464,48 +488,8 @@ class MobileFilterSection extends StatelessWidget {
 }
 
 // ============================================================================
-// PRODUCT DISPLAY COMPONENTS - FIXED VERSION
+// PRODUCT DISPLAY COMPONENTS - Complete with overflow fixes
 // ============================================================================
-
-// class ProductGrid extends StatelessWidget {
-//   final List<Product> products;
-//   final Animation<double> fadeAnimation;
-//
-//   const ProductGrid({
-//     super.key,
-//     required this.products,
-//     required this.fadeAnimation,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     if (products.isEmpty) {
-//       return const EmptyProductsState();
-//     }
-//
-//     final screenWidth = MediaQuery.of(context).size.width;
-//     final crossAxisCount = screenWidth > 1400 ? 4 : screenWidth > 1000 ? 3 : screenWidth > 600 ? 2 : 1;
-//
-//     return FadeTransition(
-//       opacity: fadeAnimation,
-//       child: GridView.builder(
-//         padding: const EdgeInsets.all(20),
-//         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//           crossAxisCount: crossAxisCount,
-//           crossAxisSpacing: 20,
-//           mainAxisSpacing: 20,
-//           childAspectRatio: 0.85,
-//         ),
-//         itemCount: products.length,
-//         itemBuilder: (context, index) {
-//           final product = products[index];
-//           return ProductCard(product: product, index: index);
-//         },
-//       ),
-//     );
-//   }
-// }
-// In lib/widgets/mobile_widgets.dart
 
 class ProductGrid extends StatelessWidget {
   final List<Product> products;
@@ -559,7 +543,7 @@ class ProductGrid extends StatelessWidget {
           crossAxisCount: crossAxisCount,
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
-          childAspectRatio: 0.85,
+          childAspectRatio: 0.75, // Adjusted for fixed height cards
         ),
         itemCount: products.length,
         itemBuilder: (context, index) {
@@ -570,7 +554,6 @@ class ProductGrid extends StatelessWidget {
     );
   }
 }
-
 
 class EmptyProductsState extends StatelessWidget {
   const EmptyProductsState({super.key});
@@ -645,6 +628,7 @@ class ProductCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Container(
+                height: 340, // Fixed height to prevent overflow
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   gradient: LinearGradient(
@@ -657,24 +641,34 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12), // Reduced padding
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ProductCardHeader(product: product),
-                      const SizedBox(height: 12),
-                      const ProductIcon(),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8), // Reduced spacing
+                      const Flexible(
+                        flex: 2,
+                        child: ProductIcon(),
+                      ),
+                      const SizedBox(height: 8),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(child: ProductTitle(name: product.name)),
+                          Expanded(
+                            flex: 3,
+                            child: ProductTitle(name: product.name),
+                          ),
+                          const SizedBox(width: 6), // Reduced spacing
                           CategoryBadge(category: product.category),
                         ],
                       ),
-                      const SizedBox(height: 12),
-                      ProductDesc(shortDesc: product.shortDescription),
-                      const Spacer(),
+                      const SizedBox(height: 8),
+                      Flexible(
+                        flex: 2,
+                        child: ProductDesc(shortDesc: product.shortDescription),
+                      ),
+                      const SizedBox(height: 8),
                       ProductPricing(product: product),
                     ],
                   ),
@@ -745,14 +739,14 @@ class ProductIcon extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: 80,
+      height: 60, // Reduced height
       decoration: BoxDecoration(
         color: theme.colorScheme.primaryContainer.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(
         Icons.cable_rounded,
-        size: 40,
+        size: 30, // Reduced icon size
         color: theme.colorScheme.primary.withOpacity(0.7),
       ),
     );
@@ -794,12 +788,12 @@ class ProductDesc extends StatelessWidget {
     return Text(
       shortDesc,
       style: TextStyle(
-        fontSize: 12,
+        fontSize: 11, // Reduced font size
         fontWeight: FontWeight.w400,
         height: 1.2,
         color: theme.colorScheme.onSurfaceVariant,
       ),
-      maxLines: 3,
+      maxLines: 2, // Reduced max lines
       overflow: TextOverflow.ellipsis,
     );
   }
@@ -814,18 +808,22 @@ class CategoryBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.tertiaryContainer,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        category,
-        style: TextStyle(
-          fontSize: 11,
-          color: theme.colorScheme.onTertiaryContainer,
-          fontWeight: FontWeight.w600,
+    return Flexible(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reduced padding
+        decoration: BoxDecoration(
+          color: theme.colorScheme.tertiaryContainer,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          category,
+          style: TextStyle(
+            fontSize: 10, // Reduced font size
+            color: theme.colorScheme.onTertiaryContainer,
+            fontWeight: FontWeight.w600,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
       ),
     );
@@ -843,7 +841,7 @@ class ProductPricing extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(8), // Reduced padding
       decoration: BoxDecoration(
         color: theme.colorScheme.primaryContainer.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
@@ -855,57 +853,192 @@ class ProductPricing extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Price MRP',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: theme.colorScheme.onSurfaceVariant,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'MRP',
+                      style: TextStyle(
+                        fontSize: 9, // Reduced font size
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                  Text(
-                    product.displayPriceMrp,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
+                    Text(
+                      product.displayPriceMrp,
+                      style: TextStyle(
+                        fontSize: 12, // Reduced font size
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Online',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: theme.colorScheme.onSurfaceVariant,
+              const SizedBox(width: 4), // Reduced spacing
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Online',
+                      style: TextStyle(
+                        fontSize: 9, // Reduced font size
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                  Text(
-                    product.displayOnlineSp,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.secondary,
+                    Text(
+                      product.displayOnlineSp,
+                      style: TextStyle(
+                        fontSize: 12, // Reduced font size
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.secondary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
+          if (product.gstSp != null && product.gstSp! > 0) ...[
+            const SizedBox(height: 4), // Reduced spacing
+            // Changed to Column layout to prevent horizontal overflow
+            Column(
+              children: [
+                Text(
+                  'GST Inclusive:',
+                  style: TextStyle(
+                    fontSize: 8, // Reduced font size
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  product.displayGstSp,
+                  style: TextStyle(
+                    fontSize: 10, // Reduced font size
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.tertiary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-// In lib/widgets/mobile_widgets.dart
+// Mobile version of ProductPricing for the MobileProductCard
+class MobileProductPricing extends StatelessWidget {
+  final Product product;
+
+  const MobileProductPricing({super.key, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.colorScheme.primary.withOpacity(0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'MRP',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      product.displayPriceMrp,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Online',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      product.displayOnlineSp,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.secondary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (product.gstSp != null && product.gstSp! > 0) ...[
+            const SizedBox(height: 6),
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    'GST Inclusive:',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    product.displayGstSp,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
 
 class MobileProductCard extends StatelessWidget {
   final Product product;
@@ -931,18 +1064,18 @@ class MobileProductCard extends StatelessWidget {
             opacity: value,
             child: Card(
               elevation: 4,
-              clipBehavior: Clip.antiAlias, // Ensures the container respects the card's border radius
+              clipBehavior: Clip.antiAlias,
               shadowColor: theme.colorScheme.shadow.withOpacity(0.05),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: IntrinsicHeight( // Ensures all children of the Row have the same height
+              child: IntrinsicHeight(
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches children to fill the height
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Icon on the left
                     Container(
-                      width: 90, // A bit wider to look better
+                      width: 90,
                       color: theme.colorScheme.primaryContainer.withOpacity(0.3),
                       child: Icon(
                         Icons.cable_rounded,
@@ -959,16 +1092,12 @@ class MobileProductCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ProductCardHeader(product: product),
-                            const SizedBox(height: 18),
-                            // Category Badge is now included
+                            const SizedBox(height: 12),
                             ProductTitle(name: product.name),
                             const SizedBox(height: 8),
-
-                            const SizedBox(height: 4),
                             ProductDesc(shortDesc: product.shortDescription),
-                            // const Spacer(), // Pushes pricing to the bottom
-                            const SizedBox(height: 18),
-                            ProductPricing(product: product),
+                            const SizedBox(height: 12),
+                            MobileProductPricing(product: product), // Use the new mobile pricing widget
                           ],
                         ),
                       ),

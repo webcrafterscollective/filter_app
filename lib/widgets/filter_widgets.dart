@@ -205,28 +205,34 @@ class CategoryFilter extends StatelessWidget {
       title: 'Category',
       icon: Icons.category_rounded,
       child: Container(
+        width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
           color: theme.colorScheme.surface,
         ),
-        child: DropdownButtonFormField<String>(
-          value: selectedCategory,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: selectedCategory,
+            isExpanded: true, // This ensures the dropdown takes full width
+            dropdownColor: theme.colorScheme.surface,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            items: categories.map((category) {
+              return DropdownMenuItem(
+                value: category,
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 200), // Limit width
+                  child: Text(
+                    category,
+                    style: TextStyle(color: theme.colorScheme.onSurface),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              );
+            }).toList(),
+            onChanged: (value) => onChanged(value ?? 'All'),
           ),
-          dropdownColor: theme.colorScheme.surface,
-          items: categories.map((category) {
-            return DropdownMenuItem(
-              value: category,
-              child: Text(
-                category,
-                style: TextStyle(color: theme.colorScheme.onSurface),
-              ),
-            );
-          }).toList(),
-          onChanged: (value) => onChanged(value ?? 'All'),
         ),
       ),
     );
@@ -312,24 +318,33 @@ class PriceRangeFilter extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '₹${range.start.toStringAsFixed(0)}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
+                Expanded(
+                  child: Text(
+                    '₹${range.start.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Text(
-                  'to',
-                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    'to',
+                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                  ),
                 ),
-                Text(
-                  '₹${range.end.toStringAsFixed(0)}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
+                Expanded(
+                  child: Text(
+                    '₹${range.end.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
